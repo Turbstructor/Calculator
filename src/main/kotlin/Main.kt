@@ -1,4 +1,4 @@
-package assignment.kotlinspring.nbcamp.spartacodingclub
+package spartacodingclub.nbcamp.kotlinspring.assignment
 
 import spartacodingclub.nbcamp.kotlinspring.assignment.core.Calculator
 
