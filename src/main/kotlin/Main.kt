@@ -11,7 +11,7 @@ fun main() {
         expression = readln()
 
         if (expression.lowercase() == "exit") break
-        if (expression.lowercase() == "clear"){ calculator.clearMemory(); continue }
+        if (expression.lowercase() == "clear"){ calculator.clearMemory(); println("Calculator memory has been reset.\n"); continue }
 
         calculator.calculate(expression)
         expression = calculator.getFullExpression()
