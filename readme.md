@@ -1,6 +1,6 @@
-<p float="middle">
-    <img slign = "top" src = "assets-readme/Sparta_Coding_Club.png" width = 100 />
-    <img align = "top" src = "assets-readme/Kotlin_Spring_2nd.png" width = 100 />
+<p align = "center">
+    <img src = "assets-readme/Sparta_Coding_Club.png" width = 150 />
+    <img src = "assets-readme/Kotlin_Spring_2nd.png" width = 150 />
 </p>
 
 # C a l c u l a t o r
