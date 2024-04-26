@@ -84,6 +84,43 @@ Enter expression:
    8 * 3.5 = 28
    ```
 
+다음과 같은 경우엔 **오류를 일으킵니다**:
+- 연산자 혹은 피연산자로 가공이 불가능한 - 연산자에 사칙연산과 나머지 기호('+', '-', '*', '/', '%')를 제외한 기호가 들어오거나 피연산자에 숫자를 제외한 나머지 - 문자가 들어올 경우
+    ```
+    Enter expression: 5 & 3
+    Wrong expression!
+    Wrong operator: &
+    ```
+    ```
+    Enter expression: 2 * PI
+    Wrong expression!
+    Unparsable expression: 2 * PI
+    ```
+    - 단 다음과 같이 실수 피연산자에 `f`/`F` 접미사가 붙은 경우 **부동점 실수 리터럴로 인식**하여 오류가 일어나지 않습니다:
+        ```
+        Enter expression: * 5.0f
+        0 * 5 = 0
+        ```
+    - 이외의 리터럴에 대해선 오류가 일어납니다(실수로 변환하기 때문에 해당 리터럴(`f`, `F`)만 인식함):
+        ```
+        Enter expression: + 30L
+        Wrong expression!
+        Unparsable expression: + 30L
+        ```
+
+- 나눗셈/나머지 연산 진행 시 우항 피연산자에 0이 들어오는 경우
+  ```
+  Enter expression: 10 / 0
+  Wrong expression!
+  Invalid division: cannot divide by zero
+  
+  Enter expression: 10 % 0
+  Wrong expression!
+  Invalid division: cannot divide by zero
+  ```
+
+
+
 식이 아닌 일반 문자열이 들어올 수 있으나, 다음 둘 중 하나가 아니라면(_대소문자 구분 없음_) **오류를 일으킵니다**:
 1. `clear`: 계산기 메모리 초기화
    ```
@@ -212,3 +249,6 @@ Wrong Expression!
 - `DivisionByZeroException`: 나눗셈 혹은 나머지 연산을 진행할 때 우항 피연산자가 0일 경우 발생하는 예외입니다.
 - `InvalidOperatorException`: 연산자로 인식할 수 없는 - 사칙연산과 나머지 연산('+', '-', '*', '/', '%')을 제외한 나머지 기호가 들어왔을 경우 - 발생하는 예외입니다.
 - `UnparsableExpressionException`: 표현식이 가공할 수 없는 형식 - 공백을 기준으로 나누었을 때 2~3개 묶음이 나오지 않는 식 - 으로 들어왔을 경우 발생하는 예외입니다.
+
+## 4. 개선 필요 부분
+- 피연산자에 실수값으로 변환이 불가능한 문자가 들어왔을 경우 *표현식으로 인식할 수 없는 (본석) 오류와 다른* 오류를 출력하는 것
