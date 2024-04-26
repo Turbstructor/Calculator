@@ -7,28 +7,28 @@ class Calculator {
     private var operand: DoubleArray = DoubleArray(2)
     private var arithmeticOperator: String = ""
 
-
     private var result: Double = 0.0
     private var memory: Double = 0.0
+    private var expression: String = ""
 
     private lateinit var operation: AbstractOperation
 
-    var isExpressionValid = true
-        private set
+    private var isExpressionValid = true
     private var isExpressionUnparsable = false
     private var isOperatorWrong = false
     private var isDividingByZero = false
 
     private var isExpressionAccumulative = false
 
-    var errorMessage: String = ""
-        private set
+    fun clearMemory() { result = 0.0; memory = 0.0 }
 
-    private fun parseExpression(expression: String) {
+    private fun parseExpression(expressionInput: String) {
         isExpressionUnparsable = false
         isOperatorWrong = false
         isDividingByZero = false
         isExpressionAccumulative = false
+
+        expression = expressionInput
 
         try {
             val parts: List<String> = expression.split(" ")
@@ -66,28 +66,30 @@ class Calculator {
         }
     }
 
-    fun calculate(expression: String) {
-        parseExpression(expression)
+    private fun simplify(value: Double): Any = if (value % 1.0 == 0.0) value.toLong() else value
 
-        errorMessage = ""
+    private fun getFullExpression(): String = (
+            "${simplify(if (isExpressionAccumulative) memory else operand[0])} " +
+                    "$arithmeticOperator ${simplify(operand[1])} = ${simplify(result)}"
+            )
+
+    private fun getErrorMessage(): String = (
+            "Wrong expression!" +
+                    (if (isExpressionUnparsable) "\nUnparsable expression: $expression" else "") +
+                    (if (isOperatorWrong) "\nWrong operator: $arithmeticOperator" else "") +
+                    (if (isDividingByZero) "\nInvalid division: cannot divide by zero" else "")
+            )
+
+    fun calculate(expressionInput: String) {
+        parseExpression(expressionInput)
+
         isExpressionValid = !(isExpressionUnparsable || isOperatorWrong || isDividingByZero) // multiple flags can exist
 
         if (isExpressionValid) {
             memory = result
             result = operation.operate(operand[0], operand[1])
         }
-        else {
-            errorMessage = "Wrong expression!" +
-                    (if (isExpressionUnparsable) "\nUnparsable expression: $expression" else "") +
-                    (if (isOperatorWrong) "\nWrong operator: $arithmeticOperator" else "") +
-                    (if (isDividingByZero) "\nInvalid division: cannot divide by zero" else "")
-        }
     }
 
-    private fun simplify(value: Double): Any = if (value % 1.0 == 0.0) value.toLong() else value
-    fun getFullExpression(): String = (
-                "${simplify(if (isExpressionAccumulative) memory else operand[0])} " +
-                "$arithmeticOperator ${simplify(operand[1])} = ${simplify(result)}"
-                )
-    fun clearMemory() { result = 0.0; memory = 0.0 }
+    fun getResult(): String = if(isExpressionValid) getFullExpression() else getErrorMessage()
 }

@@ -14,9 +14,8 @@ fun main() {
         if (expression.lowercase() == "clear"){ calculator.clearMemory(); println("Calculator memory has been reset.\n"); continue }
 
         calculator.calculate(expression)
-        expression = calculator.getFullExpression()
 
-        println(if (calculator.isExpressionValid) expression else calculator.errorMessage)
+        println(calculator.getResult())
         println()
     }
 
