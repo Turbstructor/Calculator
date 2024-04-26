@@ -22,13 +22,11 @@ class Calculator {
 
     fun clearMemory() { result = 0.0; memory = 0.0 }
 
-    private fun parseExpression(expressionInput: String) {
+    private fun parseExpression() {
         isExpressionUnparsable = false
         isOperatorWrong = false
         isDividingByZero = false
         isExpressionAccumulative = false
-
-        expression = expressionInput
 
         try {
             val parts: List<String> = expression.split(" ")
@@ -81,7 +79,8 @@ class Calculator {
             )
 
     fun calculate(expressionInput: String) {
-        parseExpression(expressionInput)
+        expression = expressionInput
+        parseExpression()
 
         isExpressionValid = !(isExpressionUnparsable || isOperatorWrong || isDividingByZero) // multiple flags can exist
 
