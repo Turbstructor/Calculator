@@ -10,8 +10,8 @@ fun main() {
         print("Enter expression: ")
         expression = readln()
 
-        if (expression == "exit") break
-        if (expression == "clear"){ calculator.clearMemory(); continue }
+        if (expression.lowercase() == "exit") break
+        if (expression.lowercase() == "clear"){ calculator.clearMemory(); continue }
 
         calculator.calculate(expression)
         expression = calculator.getFullExpression()
