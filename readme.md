@@ -171,6 +171,10 @@ Enter expression:
 계산기를 시연하는 클래스. `Main.kt`에서 해당 인스턴스를 생성하여 사용하되, 직접적으로 사용하는 함수는 `calculate`, `clearMemory`, `getResult` 이 3가지입니다.
 
 ##### 3-2-1-1. `Calculator.calculate`
+```kotlin
+fun calculate(expressionInput: String)
+```
+
 주어진 표현식을 받아 계산을 진행합니다. 의사 코드로 표현한 작동 방식은 다음과 같습니다:
 ```pseudocode
 입력받은 표현식을 내부 변수에 저장한다
@@ -185,6 +189,10 @@ Enter expression:
 표현식 가공을 위해 내부적으로 `parseExpression`을 사용합니다.
 
 ###### 3-2-1-1-1. `Calculator.parseExpression`
+```kotlin
+private fun parseExpression()
+```
+
 주어진 표현식을 가공하여 각각의 프로퍼티 - 연산자, 연산 모듈, 오류 플래그 - 에 값을 담습니다. 의사 코드로 표현한 작동 방식은 다음과 같습니다:
 ```pseudocode
 오류 플래그들을 초기화한다
@@ -208,12 +216,24 @@ Enter expression:
 ```
 
 ##### 3-2-1-2. `Calculator.getResult`
+```kotlin
+fun getResult(): String
+```
+
 계산 결과를 문자열로 만들어 반환합니다. 표현식에 오류가 없을 경우 (**입력받은 표현식을 간략화한 것을 포함한**) 결과값을, 그렇지 않을 경우 오류 메세지를 만들어 반환합니다.
 
 ###### 3-2-1-2-1. `Calculator.simplify`
+```kotlin
+private fun simplify(value: Double): Any 
+```
+
 실수 값을 패러미터로 받아, 정수로 표현할 수 있을 경우 - 소수점 부분이 없을 경우 - 정수로 변환한 값을, 그렇지 않을 경우 원래의 값을 반환합니다.
 
 ###### 3-2-1-2-2. `Calculator.getFullExpression`
+```kotlin
+private fun getFullExpression(): String 
+```
+
 입력받은 표현식과 그 결과를 아래의 형태로 조합하여 문자열 형태로 반환합니다:
 
 ```
@@ -223,6 +243,10 @@ Enter expression:
 이 때 연산자를 제외한 모든 항목들은 정수로 표현될 수 있을 경우 **간략화**(`Calculator.simplify`)하여 - 소수점을 없애서 - 표현합니다.
 
 ###### 3-2-1-2-3. `Calculator.getErrorMessage`
+```kotlin
+private fun getErrorMessage(): String
+```
+
 입력받은 표현식을 가공하면서 발생한 오류들을 하나의 문자열로 표현하여 아래의 형식으로 반환합니다:
 
 ```
@@ -232,6 +256,10 @@ Wrong Expression!
 ```
 
 ##### 3-2-1-3. `Calculator.clearMemory`
+```kotlin
+fun clearMemory()
+```
+
 계산기 시뮬레이터에 있는 메모리(이전 결과값)을 0으로 초기화합니다.
 
 
