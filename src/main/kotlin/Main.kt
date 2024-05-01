@@ -1,21 +1,23 @@
 package spartacodingclub.nbcamp.kotlinspring.assignment
 
-import spartacodingclub.nbcamp.kotlinspring.assignment.core.Calculator
+import spartacodingclub.nbcamp.kotlinspring.assignment.core.CalculatorRunner
 
 fun main() {
     var expression: String
-    val calculator = Calculator()
+//    val calculatorRunner = CalculatorRunner()
 
     while (true){
         print("Enter expression: ")
+
         expression = readln()
-
-        if (expression.lowercase() == "exit") break
-        if (expression.lowercase() == "clear"){ calculator.clearMemory(); println("Calculator memory has been reset.\n"); continue }
-
-        calculator.calculate(expression)
-
-        println(calculator.getResult())
+        when (expression.lowercase()) {
+            "exit" -> break
+            "clear" -> {
+                CalculatorRunner.clearMemory()
+                println("Calculator memory has been reset.")
+            }
+            else -> CalculatorRunner.execute(expression)
+        }
         println()
     }
 
