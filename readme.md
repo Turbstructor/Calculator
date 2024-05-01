@@ -46,11 +46,10 @@
     
     만약 "clear"를 입력 받았을 경우
         계산기 메모리를 초기화한다
-    만약 "exit"을 입력 받았을 경우
+    그게 아니고 만약 "exit"을 입력 받았을 경우
         반복을 종료한다
-    
-    계산기에 식을 넣어 연산을 진행한다
-    계산기로부터 결과값을 받아 출력한다
+    그것도 아닐 경우
+        계산기에 식을 보내 계산하게 한다
 ```
 
 ### 2-2. 실행 방법
@@ -75,7 +74,7 @@ Enter expression:
    Enter expression: * 3
    ```
 
-   이 경우 **계산기 메모리에 남이있는 결과값을 자동으로 좌항 피연산자로 넣어 계산**합니다:
+   이 경우 **계산기 _메모리_ 에 남이있는 (이전 계산) 결과값을 자동으로 좌항 피연산자로 넣어 계산**합니다:
    ```
    Enter expression: 5.0 + 3
    5 + 3 = 8
@@ -150,120 +149,98 @@ Enter expression:
 
 - `spartacodingclub.nbcamp.kotlinspring.assignment`: 기본 과제 그룹
   - `core`: 주요 기능들이 속한 패키지
+    - `CalculatorRunner`: 계산기 실행을 위한 **`object`** (`Singleton`처럼 사용)
     - `Calculator`: 계산기 시뮬레이션 `class`
-      - `operation`: 연산 패키지
-        - `AbstractOperation`: 아래 연산 클래스들의 `interface`
-        - `ConcreteOperation.kt`: `AbstractOperation` `interface`를 구현한 `class`들이 보관된 곳
-          - `AddOperation`: 덧셈 연산 `class`
-          - `SubtractOperation`: 뺄셈 연산 `class`
-          - `MultiplyOperation`: 곱셈 연산 `class`
-          - `DivideOperation`: 나눗셈 연산 `class`
-          - `RemainderOperation`: 나머지 연산 `class`
-      - `exception`: 계산기 시뮬레이션 사용 중 발생할 수 있는 문제들을 예외로 표현하여 넣어둔 패키지
-        - `CustomException.kt`: 계산기 시뮬레이션 사용 중 발생할 수 있는 문제들을 예외로 표현하여 넣어둔 패키지
-          - `DivisionByZeroException`: 0으로 나눌 때 발생시키는 예외
-          - `InvalidOperatorException`: 올바르지 않은 연산자가 들어왔을 때 발생시키는 예외
-          - `UnparsableExpressionException`: 계산식을 식별할 수 없을 때 발생시키는 예외
+    - `operation`: 연산 패키지
+      - `AbstractOperation`: 아래 연산 클래스들의 `interface`
+      - `ConcreteOperation.kt`: `AbstractOperation` `interface`를 구현한 `class`들이 보관된 곳
+        - `AddOperation`: 덧셈 연산 `class`
+        - `SubtractOperation`: 뺄셈 연산 `class`
+        - `MultiplyOperation`: 곱셈 연산 `class`
+        - `DivideOperation`: 나눗셈 연산 `class`
+        - `RemainderOperation`: 나머지 연산 `class`
+    - `exception`: 계산기 시뮬레이션 사용 중 발생할 수 있는 문제들을 예외로 표현하여 넣어둔 패키지
+      - `CustomException.kt`: 계산기 시뮬레이션 사용 중 발생할 수 있는 문제들을 예외로 표현하여 넣어둔 파일
+        - `DivisionByZeroException`: 0으로 나눌 때 발생시키는 예외
+        - `InvalidOperatorException`: 올바르지 않은 연산자가 들어왔을 때 발생시키는 예외
+        - `UnparsableExpressionException`: 계산식을 식별할 수 없을 때 발생시키는 예외
 
 ### 3-2. 클래스 설명
 
-#### 3-2-1. `core.Calculator`
-계산기를 시연하는 클래스. `Main.kt`에서 해당 인스턴스를 생성하여 사용하되, 직접적으로 사용하는 함수는 `calculate`, `clearMemory`, `getResult` 이 3가지입니다.
+#### 3-2-1. `core.CalculatorRunner`
+`core.Calculator` 클래스를 사용하여 계산을 진행하는 클래스. `main`으로부터 `execute` 함수를 통해 **수식을 받아 그 결과를 출력하는 과정을 담당**합니다.
 
-##### 3-2-1-1. `Calculator.calculate`
+##### 3-2-1-1. `CalculationRunner.execute`
 ```kotlin
-fun calculate(expressionInput: String)
+fun execute(expressionInput: String)
 ```
+`expressionInput`을 패러미터로 하여, 입력받은 표현식을 (계산한) 결과값과 함께 출력합니다. **최대한 간단하게 출력**하는데, 이는 **정수로 표현될 수 있는 실수값들을 모두 정수로 표현**하는 것을 의미합니다. 과정 중 발생한 예외를 여기서 처리합니다.
 
-주어진 표현식을 받아 계산을 진행합니다. 의사 코드로 표현한 작동 방식은 다음과 같습니다:
+의사 코드로 표현한 작동 방식은 다음과 같습니다:
 ```pseudocode
-입력받은 표현식을 내부 변수에 저장한다
-표현식을 가공한다(`parseExpression`)
+다음 과정 중 발생한 예외를 처리한다:
+    입력받은 표현식을 `<좌항 피연산자> <연산자> <우항 피연산자>` 형식에 맞게 바꾼다
+    위 표현식을 argument로 넘겨 `Calculator` 인스턴스를 생성한다
 
-표현식에 문제가 없었는지 오류 플래그들을 체크한다
-표현식에 문제가 없을 경우
-    메모리에 (계산 전) 마지막 결과값을 저장한다
-    연산 모듈(`operation`)을 통해 값을 계산(`calculate`)하여 결과값에 저장한다
+    계산을 진행한다
+    메모리에 계산 결과를 저장한다
+    
+    계산식을 `<계산식> = <결과(메모리)>` 형식에 맞게, 간략화하여 바꾼다
+    계산식을 출력한다
+예외 발생 시:
+    예외에 따른 오류 메세지를 출력한다
 ```
 
-표현식 가공을 위해 내부적으로 `parseExpression`을 사용합니다.
+과정 중 표현식을 형식에 맞게 바꾸는 부분에 내부적으로 `getFullExpression` 함수와 `getFullExpressionWithResultsSimplified` 함수를 사용합니다.
 
-###### 3-2-1-1-1. `Calculator.parseExpression`
+###### 3-2-1-1-1. `CalculationRunner.getFullExpression`
 ```kotlin
-private fun parseExpression()
+private fun getFullExpression(expression: String): String
 ```
+입력받은 표현식을 `<좌항 피연산자> <연산자> <우항 피연산자>` 형식에 맞춰 바꾼 다음 반환합니다. 이는 입력받은 표현식이 **연산자와 그 뒤에 붙는 피연산자의 형식**일 경우 그 역할이 유의미한데, 이 경우 **`CalculatorRunner.memory` 값을 좌항 피연산자로 넣어줍니다.** 연산자 양옆으로 피연산자가 들어오는 경우엔 표현식을 그대로 반환합니다.
 
-주어진 표현식을 가공하여 각각의 프로퍼티 - 연산자, 연산 모듈, 오류 플래그 - 에 값을 담습니다. 의사 코드로 표현한 작동 방식은 다음과 같습니다:
-```pseudocode
-오류 플래그들을 초기화한다
+앞의 두 형식 중 하나로 분류할 수 없을 경우 - 여기선 간단하게 **공백을 기준으로 갈라지는 조각 갯수를 가지고 판단**합니다 - **`UnparsableExpressionException` 예외를 발생**시킵니다.
 
-표현식을 공백으로 분리하여 목록을 만든다
-목록 길이가 2 혹은 3이 아닌 경우(각각 [연산자 + 피연산자] 조합과 [피연산자 + 연산자 + 피연산자] 조합으로 구성됨을 의미함)
-    가공 오류에 대한 예외를 처리한다:
-        가공 오류 플래그를 켠다
-예전 결과값을 참고해야 하는지 확인한다
-
-좌항 피연산자 - 연산자 - 우항 피연산자를 가공하여 각각 실수 - 문자열 - 실수 형태로 담는다
-    좌항 피연산자가 없는 경우 여기에 예전 결과값을 담는다
-
-연산자에 따라 연산 모듈에 `operation`에 새 인스턴스를 생성한다
-    나눔/나머지 연산자가 들어왔을 경우 우항 피연산자가 0(혹은 0.0)일 경우
-        0으로 나눔에 대한 예외를 처리한다:
-            0으로 나눔 오류 플래그를 켠다
-    연산자가 주어진 5개 - '+', '-', '*', '/', '%' - 중에 없을 경우
-        알 수 없는 연산자에 대한 예외를 처리한다:
-            올바르지 않은 연산자 오류 플래그를 켠다
-```
-
-##### 3-2-1-2. `Calculator.getResult`
+###### 3-2-1-1-2. `CalculationRunner.getSimplifiedNumber`
 ```kotlin
-fun getResult(): String
+private fun getSimplifiedNumber(value: Double): Number
 ```
+주어진 실수값(`value`)을 **정수로 표현할 수 있을 경우** 정수값을, 그렇지 않을 경우 실수값을 반환합니다.
 
-계산 결과를 문자열로 만들어 반환합니다. 표현식에 오류가 없을 경우 (**입력받은 표현식을 간략화한 것을 포함한**) 결과값을, 그렇지 않을 경우 오류 메세지를 만들어 반환합니다.
-
-###### 3-2-1-2-1. `Calculator.simplify`
+###### 3-2-1-1-3. `CalculationRunner.getFullExpressionWithResultsSimplified`
 ```kotlin
-private fun simplify(value: Double): Any 
+private fun getFullExpressionWithResultSimplified(expression: String): String
 ```
+`CalculatorRunner.execute`를 통해 입력받은 표현식과 그 계산 결과값을 하나로 합친 식을 반환합니다. 이 때 **정수로 표현될 수 있는 값들은 모두 정수로 변환**하여 식을 간략화합니다.
 
-실수 값을 패러미터로 받아, 정수로 표현할 수 있을 경우 - 소수점 부분이 없을 경우 - 정수로 변환한 값을, 그렇지 않을 경우 원래의 값을 반환합니다.
-
-###### 3-2-1-2-2. `Calculator.getFullExpression`
-```kotlin
-private fun getFullExpression(): String 
-```
-
-입력받은 표현식과 그 결과를 아래의 형태로 조합하여 문자열 형태로 반환합니다:
-
-```
-<좌항 피연산자> <연산자> <우항 피연산자> = <결과값>
-```
-
-이 때 연산자를 제외한 모든 항목들은 정수로 표현될 수 있을 경우 **간략화**(`Calculator.simplify`)하여 - 소수점을 없애서 - 표현합니다.
-
-###### 3-2-1-2-3. `Calculator.getErrorMessage`
-```kotlin
-private fun getErrorMessage(): String
-```
-
-입력받은 표현식을 가공하면서 발생한 오류들을 하나의 문자열로 표현하여 아래의 형식으로 반환합니다:
-
-```
-Wrong Expression!
-<오류 #1>
-...
-```
-
-##### 3-2-1-3. `Calculator.clearMemory`
+##### 3-2-1-2. `CalculationRunner.clearMemory`
 ```kotlin
 fun clearMemory()
 ```
+저장되어 있는 계산 결과를 초기화합니다. `main`에서 실행할 때 수식으로 `clear` 문자열이 들어왔을 경우 호출됩니다.
 
-계산기 시뮬레이터에 있는 메모리(이전 결과값)을 0으로 초기화합니다.
+
+#### 3-2-2. `core.Calculator`
+피연산자 - 연산자(에 해당하는 모듈) - 결과값 조합이 하나로 묶인 클래스. `CalculatorRunner`에서 새로운 계산이 실행될 때 마다 **새 인스턴스를 만들어 사용**합니다.
+
+##### 3-2-2-1. `Calculator`의 생성자
+(입력받은) 표현식을 패러미터로 하여 인스턴스 생성 시 계산을 위한 값을 가공하여 프로퍼티들에 씌우는데, 의사 코드로 표현한 작동 방식은 다음과 같습니다:
+```pseudocode
+표현식을 3조각으로 쪼갠다(3조각으로 쪼개진다고 *전제*한다)
+좌항/우항 피연산자에 각각 조각들 중 0번/2번 인덱스의 값을 넣는다
+조각들 중 1번 연산자에 대하여 다음를 연산자에 넣는다:
+    사칙연산과 나머지 연산 기호(`+`, `-`, `*`, `/`, `%`): 각각에 대응하는 `Operation` 인스턴스
+    그 외의 값: `InvalidOperatorException` 예외 생성
+```
+
+##### 3-2-2-2. `Calculator.calculate`
+```kotlin
+fun calculate()
+```
+가지고 있는 연산 모듈과 피연산자들로부터 결과값을 계산하여 `result` 프로퍼티에 넣습니다.
 
 
-#### 3-2-2. `core.operation`
+#### 3-2-3. `core.operation`
 계산기 시뮬레이터의 연산 모듈로 사용되는 패키지입니다. 기본 틀(인터페이스) `AbstractOperation`을 기반으로 5개 연산 - 사칙연산과 나머지 연산 - 에 대한 연산자 클래스가 소속되어 있습니다.
 - `AbstractOperation`: 연산 모듈 인터페이스. `operate`로 결과값을 계산하는 틀을 제공합니다.
 - `AddOperation`: 덧셈 연산 모듈
@@ -272,11 +249,10 @@ fun clearMemory()
 - `DivideOperation`: 나눗셈 연산 모듈
 - `RemainderOperation`: 나머지 연산 모듈
 
-#### 3-2-3. `core.exception`
-표현식을 가공하면서 발생하는 오류들을 정의하는 예외들이 들어가 있는 패키지입니다.
+이 중 `DivideOperation`과 `RemainderOperation`에선 `operate`의 패러미터 `b`에 값 `0`이 들어갈 경우 `DivisionByZeroException` 예외를 발생시킵니다.
+
+#### 3-2-4. `core.exception`
+표현식을 가공하고 계싼하면서 발생하는 오류들을 정의하는 예외들이 들어가 있는 패키지입니다. 모두 **올바르지 않은 값을 넣음으로써 발생**하기에, `IllegalArgumentException`으로부터 상속받았습니다.
 - `DivisionByZeroException`: 나눗셈 혹은 나머지 연산을 진행할 때 우항 피연산자가 0일 경우 발생하는 예외입니다.
 - `InvalidOperatorException`: 연산자로 인식할 수 없는 - 사칙연산과 나머지 연산(`+`, `-`, `*`, `/`, `%`)을 제외한 나머지 기호가 들어왔을 경우 - 발생하는 예외입니다.
 - `UnparsableExpressionException`: 표현식이 가공할 수 없는 형식 - 공백을 기준으로 나누었을 때 2~3개 묶음이 나오지 않는 식 - 으로 들어왔을 경우 발생하는 예외입니다.
-
-## 4. 개선 필요 부분
-- 피연산자에 실수값으로 변환이 불가능한 문자가 들어왔을 경우 *표현식으로 인식할 수 없는 (본석) 오류와 다른* 오류를 출력하는 것
